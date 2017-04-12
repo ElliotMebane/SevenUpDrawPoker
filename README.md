@@ -1,5 +1,6 @@
 # SevenUpDrawPoker
-Draw Poker with limited Seven Up deck. Implemented in Unity with C#  
+![img](Screenshot.jpg)
+Draw Poker with limited Seven-Up deck. Implemented in Unity with C#  
   
 Traditional Seven-Up Poker (also known as Manila Poker) is a Poker derivative played with a 32-card deck and community cards. Cards ranked lower than 7 are not included in the deck so higher-ranked hands occur more often. Flush is harder to achive so it gets a higher rank than Full House.  
   
