@@ -11,13 +11,18 @@ This is a 1-player game with an AI dealer opponent. There is one opportunity to 
 The core Poker gameplay works and the package has an Apache license so you can extend it for your own games. Please contact me if you use it or discover any problems:   
 info@roguish.com   
   
-Seven-Up Poker description: http://www.poker.com/game/holdem-poker-games/manila.htm  
+Seven-Up Poker description:  
+http://www.poker.com/game/holdem-poker-games/manila.htm  
   
-Playing Card art and models used with permission of 1Poly:   https://www.assetstore.unity3d.com/en/#!/content/51076  
+Playing Card art and models used with permission of 1Poly:   
+https://www.assetstore.unity3d.com/en/#!/content/51076  
   
 Casino Image attribution:  
 https://www.flickr.com/photos/prayitnophotography/15979274301  
   
-Finite State Machine based on work of Jackson Dunstan and Prime31's StateKit:   https://github.com/ElliotMebane/UnityFiniteStateMachine  
+Finite State Machine based on work of Jackson Dunstan and Prime31's StateKit:   
+https://github.com/ElliotMebane/UnityFiniteStateMachine  
   
 Tween Engine by Prime31: https://github.com/prime31/ZestKit   
+  
+Licensed under the Apache License, Version 2.0
