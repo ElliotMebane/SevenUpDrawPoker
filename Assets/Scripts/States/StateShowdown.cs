@@ -43,24 +43,26 @@ public class StateShowdown : BaseState, IState
     {
         string tShowdownOutcome = "Showdown Outcome";
         int tComparedHands = Hand.CompareHands( _context.dealerHand, _context.playerHand, _context.gameType );
+        string tDealerHandDisplayString = _context.dealerHand.GetHighestMadeRankedHand().SId;
+        string tPlayerHandDisplayString = _context.playerHand.GetHighestMadeRankedHand().SId;
         if (tComparedHands == 0)
         {
             // Tie
             // Refund bet and ante to player
             int tRefund = _context.betThisHand + _context.ante;
             _context.ChangeBankroll( tRefund );
-            tShowdownOutcome = string.Format( "Tie!\nDealer: {0}\nYou: {1}\nRefund: ${2}", _context.dealerHand, _context.playerHand, tRefund );
+            tShowdownOutcome = string.Format( "Tie!\nDealer: {0}\nYou: {1}\nRefund: ${2}", tDealerHandDisplayString, tPlayerHandDisplayString, tRefund );
         }
         else if (tComparedHands == -1)
         {
-            tShowdownOutcome = string.Format( "Dealer wins!\nDealer: {0}\nYou: {1}", _context.dealerHand, _context.playerHand );
+            tShowdownOutcome = string.Format( "Dealer wins!\nDealer: {0}\nYou: {1}", tDealerHandDisplayString, tPlayerHandDisplayString );
         }
         else if (tComparedHands == 1)
         {
             int tWinAmount = HandleWin();
             string tHandRank = _context.playerHand.GetHighestMadeRankedHand().SId;
             int tMultiplier = _context.playerHand.GetHighestMadeRankedHand().PayoffMultiplier;
-            tShowdownOutcome = string.Format( "You win!\n{2} Multiplier: {3}\nYour Bet: ${4}\nYou Win: ${5}\nDealer: {0}\nYou: {1}", _context.dealerHand, _context.playerHand, tHandRank, tMultiplier, _context.betThisHand, tWinAmount );
+            tShowdownOutcome = string.Format( "You win!\n{2} Multiplier: {3}\nYour Bet: ${4}\nYou Win: ${5}\nDealer: {0}\nYou: {1}", tDealerHandDisplayString, tPlayerHandDisplayString, tHandRank, tMultiplier, _context.betThisHand, tWinAmount );
         }
 
         _context.textFieldConsole.GetComponent<Text>().text = tShowdownOutcome;
