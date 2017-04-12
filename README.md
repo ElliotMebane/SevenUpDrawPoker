@@ -14,6 +14,6 @@ Seven-Up Poker description: http://www.poker.com/game/holdem-poker-games/manila.
 
 Playing Card art and models used with permission of 1Poly: https://www.assetstore.unity3d.com/en/#!/content/51076
 
-Finite State Machine derived from work of Jackson Dunstan: http://jacksondunstan.com/articles/3137
+Finite State Machine based on work of Jackson Dunstan and Prime31's StateKit: https://github.com/ElliotMebane/UnityFiniteStateMachine
 
 Tween Engine by Prime31: https://github.com/prime31/ZestKit
