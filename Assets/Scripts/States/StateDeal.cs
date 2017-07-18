@@ -5,14 +5,21 @@ using UnityEngine;
 using UnityEngine.UI;
 using Prime31.ZestKit; 
 
-public class StateDeal : BaseState, IState
+public class StateDeal : BaseState
 {
     Controller _context;
     Type _nextStateType;
 
-    public StateDeal ( System.Object pContext, FiniteStateMachine pFSM ) : base( pContext, pFSM )
+    public StateDeal ()
     {
-        _context = _contextObject as Controller;
+        // empty
+    }
+
+    public override void Init( FiniteStateMachine pFSM )
+    {
+        base.Init( pFSM );
+
+        _context = _FSMContext as Controller;
     }
 
     public override IEnumerable Execute ()
@@ -33,7 +40,7 @@ public class StateDeal : BaseState, IState
         // When user is done they will advance the FSM which sets 
         // _nextState for use in the call to SwitchState below
         IEnumerator tEnumerator = SelectCards().GetEnumerator();
-        while( _stateInternalState == StateInternalStates.Execute  )
+        while( _stateInternalState == StateInternalStates.Execute )
         {
             tEnumerator.MoveNext();
 
@@ -177,16 +184,16 @@ public class StateDeal : BaseState, IState
         _FSM.SetNextState( typeof( StateDraw ), true );
     }
 
+    public void OnFoldClicked ()
+    {
+        _FSM.SetNextState( typeof( StateConcludeGame ), true );
+    }
+
     public override void BeginExit()
     {
         _context.textFieldConsole.GetComponent<Text>().text = "";
 
         EnableUIButtons( false );
-    }
-
-    public void OnFoldClicked ()
-    {
-        _FSM.SetNextState( typeof( StateConcludeGame ), true );
     }
 
     public void ReUpBankroll ()

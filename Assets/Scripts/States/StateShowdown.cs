@@ -5,15 +5,23 @@ using UnityEngine;
 using UnityEngine.UI;
 using Prime31.ZestKit; 
 
-public class StateShowdown : BaseState, IState
+public class StateShowdown : BaseState
 {
     Controller _context;
     Type _nextStateType;
 
-    public StateShowdown ( System.Object pContext, FiniteStateMachine pFSM ) : base( pContext, pFSM )
+    public StateShowdown ( )
     {
-        _context = _contextObject as Controller;
+        // empty
     }
+
+    public override void Init( FiniteStateMachine pFSM )
+    {
+        base.Init( pFSM );
+
+        _context = _FSMContext as Controller;
+    }
+
     public override IEnumerable Execute ()
     {
         _context.playerHand.SetFinalHand();

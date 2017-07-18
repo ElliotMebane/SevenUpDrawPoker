@@ -4,16 +4,22 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class StateOpen : BaseState, IState
+public class StateInitialize : BaseState
 {
     Controller _context;
     Type _nextStateType;
 
-	public StateOpen ( System.Object pContext, FiniteStateMachine pFSM ) : base ( pContext, pFSM )
-	{
-        // If you want to reference Class-specific things in the FSM Context declare and cast a variable here.
-        _context = _contextObject as Controller;
-	}
+	public StateInitialize ()
+    {
+        // empty
+    }
+
+    public override void Init( FiniteStateMachine pFSM )
+    {
+        base.Init( pFSM );
+
+        _context = _FSMContext as Controller;
+    }
 
     public override IEnumerable Execute ()
     {
@@ -51,8 +57,8 @@ public class StateOpen : BaseState, IState
     /// SEVEN-UP
     /// Use to set game type to either Draw Poker or Seven-Up Draw Poker. 
     /// Not currently in use. This sample is a Seven-Up Draw Poker game only.
-    /// Additional requirements are switching the Payoff Multipliers and instructions for Flush/Full House
-    /// hand rank difference. 
+    /// Additional requirements for switching to Draw Poker include switching the Payoff Multipliers,  
+    /// the instructions for Flush/Full House hand rank difference, and payoff values
     /// </summary>
     /// <param name="pGameType"></param>
     public void SetGameType( GameType pGameType )

@@ -2,21 +2,30 @@
 using System.Collections.Generic;
 using UnityEngine.UI;
 
-public class StateConcludeGame : BaseState, IState
+public class StateConcludeGame : BaseState
 {
     Controller _context;
 
-    public StateConcludeGame ( System.Object pContext, FiniteStateMachine pFSM ) : base( pContext, pFSM )
+    public StateConcludeGame ()
     {
-        _context = _contextObject as Controller;
+        // empty
+    }
+
+    public override void Init( FiniteStateMachine pFSM )
+    {
+        base.Init( pFSM );
+
+        _context = _FSMContext as Controller;
     }
 
     public override IEnumerable Execute ()
     {
         ClearTable();
 
-        _FSM.SetNextState( typeof( StateOpen ), true );
+        _FSM.SetNextState( typeof( StateInitialize ), true );
 
+        // no waiting here. One pass through Execute to handle all *Conclusion* activities then move on to the 
+        // next state.
         _FSM.OnStateExitComplete();
 
         yield return null;

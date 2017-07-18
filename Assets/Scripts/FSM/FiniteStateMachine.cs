@@ -4,23 +4,30 @@ using UnityEngine;
 using System.Collections;
 
 /// <summary>
-/// A Finite State Machine influenced by the work of Jackson Dunstan:
-/// http://jacksondunstan.com/articles/3726
-/// http://jacksondunstan.com/articles/3137
+/// A low-requirements Finite State Machine 
+/// https://github.com/ElliotMebane/UnityFiniteStateMachine
 /// By Roguish.com
 /// </summary>
 public class FiniteStateMachine     
 {
-    private Dictionary<Type, BaseState> _states;
-    private MonoBehaviour _monoBehaviourContext; // needed so we can call StartCoroutine
-    private BaseState _activeState;
-    private BaseState _nextState;
+    private Dictionary<Type, IState> _states;
+    private MonoBehaviour _monoBehaviourContext;
+    // The contexts referenced in the states themselves are simple Objects so the states don't have any reliance on MonoBehaviour.
+    private System.Object _FSMContext;
+    private IState _activeState;
+    private IState _nextState;
     private IEnumerable _activeStateIEnumerable;
 
-	public FiniteStateMachine ( MonoBehaviour pMonoBehaviourContext, List<Type> pStateTypes = null )
+    ///<summary>Initialize the FSM</summary>
+    ///<param name="pMonobehaviourContext">Any Monobehaviour. Primarily for its ability to run a coroutine.</param>
+    ///<param name="pContext">The context object which all States reference. May be the same as pMonoBehaviourContext.</param>
+    ///<param name="pInitialState">Optional first state to run when the FSM is started.</param>
+    ///<param name="pStateTypes">Optional List of state types that will be automatically instantiated and added.</param>
+    public FiniteStateMachine ( MonoBehaviour pMonobehaviourContext, System.Object pContext, Type pInitialState = null, List<Type> pStateTypes = null )
 	{
-        _monoBehaviourContext = pMonoBehaviourContext;
-        _states = new Dictionary<Type, BaseState>();
+        _monoBehaviourContext = pMonobehaviourContext;
+        _FSMContext = pContext;
+        _states = new Dictionary<Type, IState>();
 
         if (pStateTypes != null && pStateTypes.Count > 0)
         {
@@ -28,24 +35,28 @@ public class FiniteStateMachine
             {
                 AddState( tStateType );
             }
-        }    
-    }
-
-    public BaseState AddState ( Type pStateType )
-    {
-        BaseState tReturnState = null;
-
-        if (!_states.ContainsKey( pStateType ))
-        {
-            object[] tParams = new object[2] { _monoBehaviourContext, this };
-            _states[ pStateType ] = Activator.CreateInstance( pStateType, tParams ) as BaseState;
-            tReturnState = _states[ pStateType ];
         }
-        
-        return tReturnState;
+
+        // prepare initial state
+        if ( pInitialState != null )
+        {
+            SetNextState( pInitialState, false );
+            SwitchState();
+        }
     }
 
-    public BaseState GetState ( Type pStateType )
+    public IState AddState ( Type pStateType )
+    { 
+        if ( !_states.ContainsKey( pStateType ) )
+        {
+            _states[ pStateType ] = (IState)Activator.CreateInstance( pStateType );
+            _states[ pStateType ].Init( this );
+        } 
+
+        return _states[ pStateType ];
+    }
+
+    public IState GetState ( Type pStateType )
     {
         if ( _states.ContainsKey( pStateType ) )
         {
@@ -66,23 +77,23 @@ public class FiniteStateMachine
     /// Initializes the next state and queues it up so it can begin once the activeState is finished exiting.
     /// </summary>
     /// <param name="pStateType">The Type of the next state</param>
-    /// <param name="pOverride">There may be conflicts when setting _nextState. 
+    /// <param name="pForce">There may be conflicts when setting _nextState. 
     /// The activeState may try to set it via this method but during the time it takes
     /// to complete the exit another attempt to set _nextState may be attempted from outside the state. 
     /// Use pOverride when calling SetNextState if you want to be sure 
-    /// the next state takes priority over any _nextState that may already be set. 
+    /// pStateType takes priority over any _nextState that may already be set. 
     /// Subsequent calls to SetNextState may override the setting. </param>
-    /// <param name="pBeginExitActiveState">Immediately begin exiting active state after setting the next State.
-    /// </param>
-    public void SetNextState( Type pStateType, bool pBeginExitActiveState = true, bool pOverride = false )
+    /// <param name="pBeginExitActiveState">Immediately begin exiting active state after setting the next State.</param>
+    public void SetNextState( Type pStateType, bool pBeginExitActiveState = true, bool pForce = false )
     {
-        if( _nextState == null || pOverride )
+        if( _nextState == null || pForce )
         {
             _nextState = GetState( pStateType );
         }
         else
         {
-            // dont set _nextState. 
+            // dont set _nextState if it was already set. If you want to set it even when _nextState has already been set
+            // use pForce.
         }
 
         if( pBeginExitActiveState )
@@ -91,6 +102,7 @@ public class FiniteStateMachine
         }
     }
 
+    /// <summary>When ready to switch states this sets the _activeState's internal state to Exiting and calls its BeginExit method.</summary>
     public void ExitActiveState()
     {
         if ( _activeState != null )
@@ -101,7 +113,7 @@ public class FiniteStateMachine
     }
 
     /// <summary>
-    /// Called by every state when Exit is complete (usually when Execute Iterator is finished).
+    /// Called by states when Exit is complete (usually when Execute Iterator is finished).
     /// Responsible for calling SwitchState
     /// </summary>
     public void OnStateExitComplete()
@@ -110,14 +122,14 @@ public class FiniteStateMachine
     }
 
     /// <summary>
-    /// Switches _activeState to _nextState. 
+    /// Switches _activeState to _nextState. Following this method call, the _nextState will be the active state. 
     /// Set _nextState prior to calling this. 
-    /// Made private to encourage avoiding calling directly from State. Instead, State
-    /// Should call OnStateExitComplete() which calls this. Make public if need to call directly. 
+    /// Made private to discourage calling directly from State. Instead, State
+    /// should call OnStateExitComplete() which calls this. Make public if you prefer to call directly. 
     /// </summary>
     private void SwitchState ()
     {
-        // Will be null on first state 
+        // Avoid problem when _activeState is null on first pass 
         if ( _activeState != null )
         {
             _activeState.SetStateInternalState( StateInternalStates.Inactive );
@@ -140,7 +152,6 @@ public class FiniteStateMachine
     /// <returns></returns>
     public IEnumerator ExecuteState ()
     {
-        // _activeState.Execute() returns the IEnumerable. 
         // foreach calls MoveNext on each IEnumerator in the IEnumerable and current reflects the Iterator. 
         while ( _activeStateIEnumerable != null )
         {
@@ -175,4 +186,19 @@ public class FiniteStateMachine
             return null;
         }
     }
+
+    public object FSMContext
+    {
+        get
+        {
+            return _FSMContext;
+        }
+    }
+}
+
+public enum StateInternalStates
+{
+    Inactive,
+    Execute,
+    Exiting
 }

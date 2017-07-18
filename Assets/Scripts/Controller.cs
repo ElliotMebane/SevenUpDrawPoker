@@ -128,14 +128,12 @@ public class Controller : MonoBehaviour
         tInstructions.AppendLine( "Pair: 1" );
         sevenUpDrawPokerInstructions = tInstructions.ToString();
 
-        List<Type> tStateTypes = new List<Type>() { typeof(StateOpen),
+        List<Type> tStateTypes = new List<Type>() { typeof(StateInitialize),
                                                     typeof(StateDeal),
                                                     typeof(StateDraw), 
                                                     typeof(StateShowdown),
-                                                    typeof(StateConcludeGame), };
-        _FSM = new FiniteStateMachine( this, tStateTypes );
-        _FSM.SetNextState( typeof(StateOpen), false );
-        _FSM.OnStateExitComplete(); // relays call to SwitchState.
+                                                    typeof(StateConcludeGame) };
+        _FSM = new FiniteStateMachine( this, this, typeof( StateInitialize ), tStateTypes );
         _FSM.Start();
     }
 

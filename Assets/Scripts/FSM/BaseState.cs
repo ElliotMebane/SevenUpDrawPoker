@@ -4,18 +4,23 @@ using UnityEngine;
 
 public class BaseState : IState 
 {
-    protected System.Object _contextObject;
+    protected System.Object _FSMContext;
     protected StateInternalStates _stateInternalState;
     protected FiniteStateMachine _FSM; 
     
-    public BaseState ( System.Object pContext, FiniteStateMachine pFSM )
+    public BaseState ()
     {
-        _contextObject = pContext;
-        _FSM = pFSM;
-
         _stateInternalState = StateInternalStates.Inactive;
     }
 
+    public virtual void Init( FiniteStateMachine pFSM )
+    {
+        _FSM = pFSM;
+        _FSMContext = _FSM.FSMContext;
+    }
+
+    /// <summary>
+    /// Called once per frame from FSM while this is the active state</summary>
     public virtual IEnumerable Execute ()
     {
         yield return null;
@@ -36,11 +41,4 @@ public class BaseState : IState
         // empty
     }
  
-}
-
-public enum StateInternalStates
-{
-    Inactive,
-    Execute,
-    Exiting
 }
