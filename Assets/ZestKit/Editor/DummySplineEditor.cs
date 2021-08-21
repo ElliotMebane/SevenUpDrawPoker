@@ -356,7 +356,7 @@ namespace Prime31.ZestKit
 			}
 
 			// handle current selection and node addition via double click or ctrl click
-			if( Event.current.type == EventType.mouseDown )
+			if( Event.current.type == EventType.MouseDown )
 			{
 				var nearestIndex = getNearestNodeForMousePosition( Event.current.mousePosition );
 				_selectedNodeIndex = nearestIndex;
@@ -450,7 +450,7 @@ namespace Prime31.ZestKit
 						                        Quaternion.identity,
 						                        handleSize,
 						                        snapper,
-						                        Handles.SphereCap );
+						                        Handles.SphereHandleCap );
 
 						if( EditorGUI.EndChangeCheck() )
 							handleNodeMove( i, newNodePosition );
@@ -494,7 +494,7 @@ namespace Prime31.ZestKit
 							var color = Color.red;
 							color.a = 0.3f;
 							Handles.color = color;
-							Handles.SphereCap( 0, _target.nodes[i], Quaternion.identity, _snapDistance );
+							Handles.SphereHandleCap( 0, _target.nodes[i], Quaternion.identity, _snapDistance, Event.current.type );
 							Handles.color = Color.white;
 						}
 					}					
@@ -756,7 +756,7 @@ namespace Prime31.ZestKit
 			// get the midpoint between the 2 points
 			var dir = Vector3.Lerp( point1, point2, lerpModifier );
 			var quat = Quaternion.LookRotation( point2 - point1 );
-			Handles.ArrowCap( 0, dir, quat, 5 );
+			Handles.ArrowHandleCap( 0, dir, quat, 5, Event.current.type );
 			
 			Handles.color = Color.white;
 		}
